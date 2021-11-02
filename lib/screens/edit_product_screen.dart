@@ -11,6 +11,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _priceFocusNode = FocusNode();
 
   @override
+  dispose() {
+    _priceFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -34,10 +40,15 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 keyboardType: TextInputType.number,
                 focusNode: _priceFocusNode,
               ),
-              // RaisedButton(
-              //   child: Text('Save'),
-              //   onPressed: () {},
-              // ),
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Description'),
+                maxLines: 3,
+                keyboardType: TextInputType.multiline,
+              ),
+              RaisedButton(
+                child: Text('Save'),
+                onPressed: () {},
+              ),
             ],
           ),
         ),
