@@ -36,24 +36,22 @@ class Products with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  Future<void> addProduct(Product product) {
+  Future<void> addProduct(Product product) async {
     final url = Uri.https(
-        'shop-app-flutter-24-default-rtdb.firebaseio.com', '/products.json');
+        'shop-app-flutter-24-default-rtdb.firebaseio.com', '/products');
 
-    return http
-        .post(
-      url,
-      body: json.encode(
-        {
+    try {
+      final res = await http.post(
+        url,
+        body: json.encode({
           'title': product.title,
           'description': product.description,
           'imageUrl': product.imageUrl,
           'price': product.price,
           'isFavorite': product.isFavorite,
-        },
-      ),
-    )
-        .then((res) {
+        }),
+      );
+
       final newProduct = Product(
         id: json.decode(res.body)['name'],
         title: product.title,
@@ -61,12 +59,13 @@ class Products with ChangeNotifier {
         price: product.price,
         imageUrl: product.imageUrl,
       );
+
       _items.add(newProduct);
       notifyListeners();
-    }).catchError((error) {
+    } catch (error) {
       print(error);
       throw error;
-    });
+    }
   }
 
   void updateProduct(String id, Product newProduct) {
