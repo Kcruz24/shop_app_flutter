@@ -39,7 +39,8 @@ class Products with ChangeNotifier {
   void addProduct(Product product) {
     final url = Uri.https(
         'shop-app-flutter-24-default-rtdb.firebaseio.com', '/products.json');
-    http.post(
+    http
+        .post(
       url,
       body: json.encode(
         {
@@ -50,19 +51,20 @@ class Products with ChangeNotifier {
           'isFavorite': product.isFavorite,
         },
       ),
+    )
+        .then(
+      (res) {
+        final newProduct = Product(
+          id: json.decode(res.body)['name'],
+          title: product.title,
+          description: product.description,
+          price: product.price,
+          imageUrl: product.imageUrl,
+        );
+        _items.add(newProduct);
+        notifyListeners();
+      },
     );
-    final newProduct = Product(
-      id: DateTime.now().toString(),
-      title: product.title,
-      description: product.description,
-      price: product.price,
-      imageUrl: product.imageUrl,
-      isFavorite: product.isFavorite,
-    );
-
-    _items.add(newProduct);
-
-    notifyListeners();
   }
 
   void updateProduct(String id, Product newProduct) {
