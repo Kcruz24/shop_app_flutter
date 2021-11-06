@@ -266,51 +266,52 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   Future<void> _saveForm() async {
     final isValid = _form.currentState.validate();
+    if (!isValid) {
+      return;
+    }
 
     setState(() {
       _isLoading = true;
     });
 
-    if (isValid) {
-      _form.currentState.save();
-      if (_editedProduct.id != null) {
-        Provider.of<Products>(context, listen: false)
+    _form.currentState.save();
+    if (_editedProduct.id != null) {
+      try {
+        await Provider.of<Products>(context, listen: false)
             .updateProduct(_editedProduct.id, _editedProduct);
-        Navigator.of(context).pop();
-
-        setState(() {
-          _isLoading = false;
-        });
-      } else {
-        try {
-          await Provider.of<Products>(context, listen: false)
-              .addProduct(_editedProduct);
-        } catch (error) {
-          await showDialog<Null>(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: Text('An error ocurred!'),
-              content: Text('Something went wrong.'),
-              actions: <Widget>[
-                FlatButton(
-                  child: Text('Okay'),
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                  },
-                ),
-              ],
-            ),
-          );
-        } finally {
-          setState(() {
-            _isLoading = false;
-          });
-
-          Navigator.of(context).pop();
-        }
+      } catch (error) {
+        await errorDialog();
       }
     } else {
-      return;
+      try {
+        await Provider.of<Products>(context, listen: false)
+            .addProduct(_editedProduct);
+      } catch (error) {
+        await errorDialog();
+      }
     }
+
+    setState(() {
+      _isLoading = false;
+    });
+    Navigator.of(context).pop();
+  }
+
+  Future<dynamic> errorDialog() {
+    return showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('An error occurred!'),
+        content: Text('Something went wrong.'),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Okay'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          )
+        ],
+      ),
+    );
   }
 }
