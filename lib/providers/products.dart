@@ -36,9 +36,25 @@ class Products with ChangeNotifier {
   //   notifyListeners();
   // }
 
+  Future<void> fetchAndSetProducts() async {
+    final url = Uri.https(
+        'shop-app-flutter-24-default-rtdb.firebaseio.com', '/products.json');
+
+    try {
+      final res = await http.get(url);
+      final extractedData = json.decode(res.body) as Map<String, dynamic>;
+
+      extractedData.forEach((prodId, prodData) {});
+
+      print(json.decode(res.body));
+    } catch (error) {
+      throw error;
+    }
+  }
+
   Future<void> addProduct(Product product) async {
     final url = Uri.https(
-        'shop-app-flutter-24-default-rtdb.firebaseio.com', '/products');
+        'shop-app-flutter-24-default-rtdb.firebaseio.com', '/products.json');
 
     try {
       final res = await http.post(
