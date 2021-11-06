@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../models/http_exception.dart';
 import '../data/products_data.dart';
 import 'product.dart';
 
@@ -125,20 +126,31 @@ class Products with ChangeNotifier {
     }
   }
 
-  void deleteProduct(String id) {
-    final url = Uri.https('shop-app-flutter-24-default-rtdb.firebaseio.com',
-        '/products/$id');
+  Future<void> deleteProduct(String id) async {
+    final url = Uri.https(
+        'shop-app-flutter-24-default-rtdb.firebaseio.com', '/products/$id');
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
     var existingProduct = _items[existingProductIndex];
 
+    // Delete before getting the response
     _items.removeAt(existingProductIndex);
     notifyListeners();
 
-    http.delete(url).then((_) {
+    try {
+      final res = await http.delete(url);
+      if (res.statusCode >= 400) {
+        // This is known as "Optimistic updating"
+        _items.insert(existingProductIndex, existingProduct);
+        notifyListeners();
+        throw HttpException('Could not delete product.', res.statusCode);
+      }
+    } catch (error) {
+      print('ERROR UPDATING: $error');
+
+      // reset the product
       existingProduct = null;
-    }).catchError((_) {
-      _items.insert(existingProductIndex, existingProduct);
-      notifyListeners();
-    });
+
+      throw error;
+    }
   }
 }
