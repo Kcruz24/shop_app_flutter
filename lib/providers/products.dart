@@ -74,13 +74,15 @@ class Products with ChangeNotifier {
     try {
       final res = await http.post(
         url,
-        body: json.encode({
-          'title': product.title,
-          'description': product.description,
-          'imageUrl': product.imageUrl,
-          'price': product.price,
-          'isFavorite': product.isFavorite,
-        }),
+        body: json.encode(
+          {
+            'title': product.title,
+            'description': product.description,
+            'imageUrl': product.imageUrl,
+            'price': product.price,
+            'isFavorite': product.isFavorite,
+          },
+        ),
       );
 
       final newProduct = Product(
@@ -109,12 +111,14 @@ class Products with ChangeNotifier {
       try {
         await http.patch(
           url,
-          body: json.encode({
-            'title': newProduct.title,
-            'description': newProduct.description,
-            'imageUrl': newProduct.imageUrl,
-            'price': newProduct.price,
-          }),
+          body: json.encode(
+            {
+              'title': newProduct.title,
+              'description': newProduct.description,
+              'imageUrl': newProduct.imageUrl,
+              'price': newProduct.price,
+            },
+          ),
         );
       } catch (error) {
         print('HERE IS THE ERROR $error');
