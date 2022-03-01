@@ -12,6 +12,41 @@ class Orders with ChangeNotifier {
     return [..._orders];
   }
 
+  Future<void> fetchAndSetOrders() async {
+    final url = Uri.https(
+        'shop-app-flutter-24-default-rtdb.firebaseio.com', '/orders.json');
+    final response = await http.get(url);
+    final List<OrderItem> loadedOrders = [];
+    final extractedData = json.decode(response.body) as Map<String, dynamic>;
+
+    if (extractedData == null) {
+      return;
+    }
+
+    extractedData.forEach((orderId, orderData) {
+      loadedOrders.add(
+        OrderItem(
+          id: orderId,
+          amount: orderData['amount'],
+          dateTime: DateTime.parse(orderData['dateTime']),
+          products: (orderData['products'] as List<dynamic>)
+              .map((item) => CartItem(
+                    id: item['id'],
+                    price: item['price'],
+                    quantity: item['quantity'],
+                    title: item['title'],
+                  ))
+              .toList(),
+        ),
+      );
+    });
+
+    _orders = loadedOrders.reversed.toList();
+    notifyListeners();
+
+    print('This is the body: ${json.decode(response.body)}');
+  }
+
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
     final url = Uri.https(
         'shop-app-flutter-24-default-rtdb.firebaseio.com', '/orders.json');
@@ -23,7 +58,8 @@ class Orders with ChangeNotifier {
       body: json.encode(
         {
           'amount': total,
-          'dateTime': timestamp.toIso8601String(), // this function is a uniform representation of dates which we can later convert to a datetime object.
+          'dateTime': timestamp
+              .toIso8601String(), // this function is a uniform representation of dates which we can later convert to a datetime object.
           'products': cartProducts
               .map((cp) => {
                     'id': cp.id,
