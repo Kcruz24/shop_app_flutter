@@ -42,7 +42,7 @@ class Products with ChangeNotifier {
 
   Future<void> fetchAndSetProducts() async {
     final url = Uri.https('shop-app-flutter-24-default-rtdb.firebaseio.com',
-        '/products.json', {'auth' : '$authToken'});
+        '/products.json', {'auth': '$authToken'});
 
     try {
       final res = await http.get(url);
@@ -75,8 +75,8 @@ class Products with ChangeNotifier {
   }
 
   Future<void> addProduct(Product product) async {
-    final url = Uri.https(
-        'shop-app-flutter-24-default-rtdb.firebaseio.com', '/products.json');
+    final url = Uri.https('shop-app-flutter-24-default-rtdb.firebaseio.com',
+        '/products.json', {'auth': '$authToken'});
 
     try {
       final res = await http.post(
@@ -113,7 +113,7 @@ class Products with ChangeNotifier {
 
     if (productIndex >= 0) {
       final url = Uri.https('shop-app-flutter-24-default-rtdb.firebaseio.com',
-          '/products/$id.json');
+          '/products/$id.json', {'auth': '$authToken'});
 
       try {
         await http.patch(
@@ -139,7 +139,7 @@ class Products with ChangeNotifier {
 
   Future<void> deleteProduct(String id) async {
     final url = Uri.https('shop-app-flutter-24-default-rtdb.firebaseio.com',
-        '/products/$id.json');
+        '/products/$id.json', {'auth': '$authToken'});
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
     var existingProduct = _items[existingProductIndex];
 
