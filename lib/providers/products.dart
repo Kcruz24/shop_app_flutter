@@ -11,8 +11,9 @@ class Products with ChangeNotifier {
 
   var _showFavoritesOnly = false;
   final String authToken;
+  final String userId;
 
-  Products(this.authToken, this._items);
+  Products(this.authToken, this.userId, this._items);
 
   List<Product> get items {
     // if (_showFavoritesOnly) {
@@ -41,18 +42,24 @@ class Products with ChangeNotifier {
   // }
 
   Future<void> fetchAndSetProducts() async {
-    final url = Uri.https('shop-app-flutter-24-default-rtdb.firebaseio.com',
+    var url = Uri.https('shop-app-flutter-24-default-rtdb.firebaseio.com',
         '/products.json', {'auth': '$authToken'});
 
     try {
       final res = await http.get(url);
-      final List<Product> loadedProducts = [];
       final extractedData = json.decode(res.body) as Map<String, dynamic>;
 
       if (extractedData == null) {
         return;
       }
 
+      url = Uri.https('shop-app-flutter-24-default-rtdb.firebaseio.com',
+          '/userFavorites/$userId.json', {'auth': '$authToken'});
+
+      final favoriteResponse = await http.get(url);
+      final favoriteData = json.decode(favoriteResponse.body);
+
+      final List<Product> loadedProducts = [];
       extractedData.forEach((prodId, prodData) {
         loadedProducts.add(
           Product(
@@ -60,7 +67,7 @@ class Products with ChangeNotifier {
             title: prodData['title'],
             description: prodData['description'],
             price: prodData['price'],
-            isFavorite: prodData['isFavorite'],
+            isFavorite: favoriteData == null ? false : favoriteData[prodId] ?? false, // after the "??" is a fallback
             imageUrl: prodData['imageUrl'],
           ),
         );
@@ -87,7 +94,6 @@ class Products with ChangeNotifier {
             'description': product.description,
             'imageUrl': product.imageUrl,
             'price': product.price,
-            'isFavorite': product.isFavorite,
           },
         ),
       );
