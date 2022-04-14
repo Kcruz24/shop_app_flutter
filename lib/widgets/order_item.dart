@@ -30,31 +30,35 @@ class _OrderItemState extends State<OrderItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.all(10),
-      child: Column(
-        children: <Widget>[
-          ListTile(
-            title: Text('\$${widget.amount}'),
-            subtitle: Text(
-              DateFormat('MM/dd/yyyy').format(widget.dateTime),
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      // curve: Curves.easeIn,
+      height: _expanded ? min(widget.products.length * 22.0 + 110, 200) : 95,
+      child: Card(
+        margin: EdgeInsets.all(10),
+        child: Column(
+          children: <Widget>[
+            ListTile(
+              title: Text('\$${widget.amount}'),
+              subtitle: Text(
+                DateFormat('MM/dd/yyyy').format(widget.dateTime),
+              ),
+              trailing: IconButton(
+                icon: Icon(_expanded ? Icons.expand_less : Icons.expand_more),
+                onPressed: () {
+                  setState(() {
+                    _expanded = !_expanded;
+                  });
+                },
+              ),
             ),
-            trailing: IconButton(
-              icon: Icon(_expanded ? Icons.expand_less : Icons.expand_more),
-              onPressed: () {
-                setState(() {
-                  _expanded = !_expanded;
-                });
-              },
-            ),
-          ),
-          if (_expanded)
-            Container(
+            AnimatedContainer(
+              duration: Duration(milliseconds: 300),
               padding: EdgeInsets.symmetric(
                 horizontal: 15,
                 vertical: 4,
               ),
-              height: min(widget.products.length * 20.0 + 20.0, 120),
+              height: _expanded ? min(widget.products.length * 20.0 + 20.0, 120) : 0,
               child: ListView(
                 children: widget.products
                     .map(
@@ -81,7 +85,8 @@ class _OrderItemState extends State<OrderItem> {
                     .toList(),
               ),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }
